@@ -78,6 +78,7 @@ def convert_to_tf_lite(model, model_name, path_keras, path_tf_lite_nq, train_set
     # Plots for comparison
     plt.figure()
     plt.bar(legends, sizes_on_disk)
+    plt.ylabel("KB")
     plt.title("Sizes of the models")
     plt.grid()
     
