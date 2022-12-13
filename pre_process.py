@@ -34,7 +34,9 @@ def choose_tot_slice_len(paths, visualize):
     return slice_len
 
 
-def get_data_tensors(paths_train, paths_test, y_train_l, y_test_l, tot_slice_len, used_train_sz_rat, used_test_sz_rat):
+def get_data_tensors(paths_train, paths_test, y_train_l, y_test_l, 
+                     tot_slice_len, used_train_sz_rat, used_test_sz_rat,
+                     segmentLength=1024):
     x_train_sub_l = []
     x_test_sub_l = []
 
@@ -47,7 +49,7 @@ def get_data_tensors(paths_train, paths_test, y_train_l, y_test_l, tot_slice_len
     y_test_sub_l = y_test_l[:testsize]
 
     fs, _ = wavfile.read(paths_train[0])  # fs = 16000 # Sampling rate of the samples
-    segmentLength = 1024 # Number of samples to use per segment
+    # segmentLength = 1024 # Number of samples to use per segment
     sliceLength = int(tot_slice_len * fs / segmentLength)*segmentLength # Nb samples per given slice
 
     for i in tqdm(range(trainsize)): #TQDM gives you progress info for the for loop
@@ -58,7 +60,9 @@ def get_data_tensors(paths_train, paths_test, y_train_l, y_test_l, tot_slice_len
         _x_train = np.resize(_x_train, sliceLength) # Repeat or cut if necessary to a length of sliceLength [sec]
         _x_train = _x_train.reshape(-1, int(segmentLength)) # Split slice into Segments with 0 overlap
         
-        x_train_sub_l.append(_x_train.astype(np.float32)) # Add segmented slice to training sample list, cast to float so librosa doesn't complain
+        x_train_sub_l.append(_x_train.astype(np.float32)) 
+        # Add segmented slice to training sample list, 
+        # cast to float so librosa doesn't complain
 
     for i in tqdm(range(testsize)):
         fs_i, test_sound_data = wavfile.read(paths_test[i])
@@ -76,24 +80,22 @@ def get_data_tensors(paths_train, paths_test, y_train_l, y_test_l, tot_slice_len
     y_train = tf.convert_to_tensor(np.asarray(y_train_sub_l))
     y_test = tf.convert_to_tensor(np.asarray(y_test_sub_l))
     
-    return x_train, y_train, x_test, y_test
+    return fs, x_train, y_train, x_test, y_test
 
-def compute_mfccs(tensor):
-    sample_rate = 16000.0
-    lower_edge_hertz, upper_edge_hertz, num_mel_bins = 80.0, 7600.0, 80
-    frame_length = 1024
-    num_mfcc = 13
+def compute_mfccs(tensor, sample_rate, frame_length, lower_edge_hertz=80., upper_edge_hertz=7600., 
+                  num_mel_bins=80, num_mfcc=13):
 
     stfts = tf.signal.stft(tensor, frame_length=frame_length, frame_step=frame_length, fft_length=frame_length)
     # Short time fourier transofrm
     spectrograms = tf.abs(stfts) # [frame_len, fft_len//2+1]
     spectrograms = tf.reshape(spectrograms, (spectrograms.shape[0],spectrograms.shape[1],-1)) #flatten last dim
     num_spectrogram_bins = stfts.shape[-1]
-    linear_to_mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(
-    num_mel_bins, num_spectrogram_bins, sample_rate, lower_edge_hertz,
-    upper_edge_hertz)
+    linear_to_mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(num_mel_bins, num_spectrogram_bins, 
+                                                                        sample_rate, 
+                                                                        lower_edge_hertz, upper_edge_hertz)
     mel_spectrograms = tf.tensordot(spectrograms, linear_to_mel_weight_matrix, 1)  # Vector multi
-    # The matrix can be used with tf.tensordot to convert an arbitrary rank Tensor of linear-scale spectral bins into the mel scale.
+    # The matrix can be used with tf.tensordot to convert an arbitrary rank Tensor 
+    # of linear-scale spectral bins into the mel scale.
     log_mel_spectrograms = tf.math.log(mel_spectrograms + 1e-6)
     mfccs = tf.signal.mfccs_from_log_mel_spectrograms(log_mel_spectrograms)[..., :num_mfcc]
     
