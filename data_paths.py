@@ -48,7 +48,7 @@ def get_file_paths_ordered(num_speaker, test_ratio, balanced_dataset, plot_data)
     # Remove unused speakers
     files_for_speakers_sorted = files_for_speakers_sorted[:num_speaker]
     nb_files_per_speaker_sorted = nb_files_per_speaker_sorted[:num_speaker]
-    
+
     print("Original number of files per speaker : ", nb_files_per_speaker_sorted)
 
     if balanced_dataset:

@@ -100,3 +100,4 @@ def compute_mfccs(tensor, sample_rate, frame_length, lower_edge_hertz=80., upper
     mfccs = tf.signal.mfccs_from_log_mel_spectrograms(log_mel_spectrograms)[..., :num_mfcc]
     
     return tf.reshape(mfccs, (mfccs.shape[0],mfccs.shape[1],mfccs.shape[2],-1))
+

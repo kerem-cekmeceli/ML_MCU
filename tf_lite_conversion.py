@@ -2,7 +2,8 @@ import tensorflow as tf
 import os
 import matplotlib.pyplot as plt
 
-def convert_to_tf_lite(train_set, model, tflite_model_name):
+
+def convert_to_tflite(train_set, model, tflite_model_name):
     train_set = train_set.numpy()
     # test_set = test_set.numpy()
     # train_labels = train_labels.numpy()
@@ -34,15 +35,11 @@ def convert_to_tf_lite(train_set, model, tflite_model_name):
     
     return tflite_model
 
-
-def convert_to_tflite(model, model_name, path_model, train_set=None, quantize=False):
+def convert_to_tf_lite(model, model_name, path_keras, path_tf_lite_nq, train_set=None, path_tf_lite_q=None):
     
+    quantize = path_tf_lite_q is not None
     if quantize:
         assert train_set is not None
-        
-    sizes_on_disk = []
-    comp_rat = []
-    legends = []
 
     # Convert the model to TFLite without quantization
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
@@ -50,20 +47,8 @@ def convert_to_tflite(model, model_name, path_model, train_set=None, quantize=Fa
 
     # Save the non-quantized TFLite model to disk
     nq_model_name_on_disk = "tf_lite_" + model_name + "_no_quant.tflite"
-    open(path_model + nq_model_name_on_disk, "wb").write(tflite_model_nq)
 
-    # Show the model size for the non-quantized HDF5 model
-    h5_in_kb = os.path.getsize(path_model + model_name + '.h5') / 1024
-    print("HDF5 Model size without quantization: %d KB" % h5_in_kb)
-    sizes_on_disk.append(h5_in_kb)
-    comp_rat.append(1.)
-    legends.append("Keras")
-
-    # Show the model size for the non-quantized TFLite model
-    tflite_nq_in_kb = os.path.getsize(path_model + nq_model_name_on_disk) / 1024
-    print("TFLite Model size without quantization: %d KB" % tflite_nq_in_kb)
-    sizes_on_disk.append(tflite_nq_in_kb)
-    legends.append("TFLiteNonQuant")
+    open(path_tf_lite_nq + nq_model_name_on_disk, "wb").write(tflite_model_nq)
     
     # Quantization
     if quantize:
@@ -83,36 +68,25 @@ def convert_to_tflite(model, model_name, path_model, train_set=None, quantize=Fa
         converter.representative_dataset = representative_dataset
         tflite_model_q = converter.convert()
         
-        # Save the quantized TFLite model to disk
-        q_model_name_on_disk = "tf_lite_" + model_name + "_quant.tflite"
-        open(path_model + q_model_name_on_disk, "wb").write(tflite_model_q)
-    
-        def representative_dataset():
-            for i in range(500):
-                shape = train_set[i].shape[0]
-                yield([train_set[i].reshape(1,shape,13,1)])
-
-        # Set the optimization flag.
-        converter.optimizations = [tf.lite.Optimize.DEFAULT]
-
-        # Enforce full-int8 quantization
-        converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
-        converter.inference_input_type = tf.int8  # or tf.uint8  quantization not compression 1/4
-        converter.inference_output_type = tf.int8  # or tf.uint8
-        # Provide a representative dataset to ensure we quantize correctly.
-        converter.representative_dataset = representative_dataset
-        tflite_model_q = converter.convert()
-        
         # Save the non-quantized TFLite model to disk
         q_model_name_on_disk = "tf_lite_" + model_name + "_quant.tflite"
-        open(path_model + nq_model_name_on_disk, "wb").write(tflite_model_q)
+        open(path_tf_lite_nq + nq_model_name_on_disk, "wb").write(tflite_model_q)
         
     sizes_on_disk = []
     comp_rat = []
     legends = []
 
+
+
+    # Show the model size for the non-quantized HDF5 model
+    h5_in_kb = os.path.getsize(path_keras + 'keras_' + model_name + '.h5') / 1024
+    print("HDF5 Model size without quantization: %d KB" % h5_in_kb)
+    sizes_on_disk.append(h5_in_kb)
+    comp_rat.append(1.)
+    legends.append("Keras")
+
     # Show the model size for the non-quantized TFLite model
-    tflite_nq_in_kb = os.path.getsize(path_model + nq_model_name_on_disk) / 1024
+    tflite_nq_in_kb = os.path.getsize(path_tf_lite_nq + nq_model_name_on_disk) / 1024
     print("TFLite Model size without quantization: %d KB" % tflite_nq_in_kb)
     sizes_on_disk.append(tflite_nq_in_kb)
     legends.append("TFLiteNonQuant")
@@ -125,7 +99,7 @@ def convert_to_tflite(model, model_name, path_model, train_set=None, quantize=Fa
     if quantize:
         
         # Show the model size for the non-quantized TFLite model
-        tflite_q_in_kb = os.path.getsize(path_model + q_model_name_on_disk) / 1024
+        tflite_q_in_kb = os.path.getsize(path_tf_lite_q + q_model_name_on_disk) / 1024
         print("Quantized TFLite Model size: %d KB" % tflite_q_in_kb)
         sizes_on_disk.append(tflite_q_in_kb)
         legends.append("TFLiteQuant")
@@ -145,27 +119,22 @@ def convert_to_tflite(model, model_name, path_model, train_set=None, quantize=Fa
     plt.figure()
     plt.bar(legends, comp_rat)
     plt.title("Compression Ratios")
-    plt.grid() / 1024
-    print("TFLite Model size without quantization: %d KB" % tflite_nq_in_kb)
-    sizes_on_disk.append(tflite_nq_in_kb)
-    legends.append("TFLiteNonQuant")
-
+    plt.grid()
     
         
 
-def convert_to_tf_lite_quantized(model, model_name, path_model, train_set):
+def convert_to_tf_lite_quantized(model, model_name, path_tf_lite_q, train_set):
     train_set = train_set.numpy()
 
     # Convert Keras model to a tflite model
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
     # Convert the model to the TensorFlow Lite format with quantization
     quantize = True
-    # Quantization
-    if quantize:
+
+    if (quantize):
         def representative_dataset():
             for i in range(500):
-                shape = train_set[i].shape[0]
-                yield([train_set[i].reshape(1,shape,13,1)])
+                yield([train_set[i]])
 
         # Set the optimization flag.
         converter.optimizations = [tf.lite.Optimize.DEFAULT]
@@ -179,4 +148,5 @@ def convert_to_tf_lite_quantized(model, model_name, path_model, train_set):
     converter.representative_dataset = representative_dataset
     tflite_model = converter.convert()
 
-    open(path_model + 'tf_lite_' + model_name + '_quant.tflite', 'wb').write(tflite_model)
+
+    open(path_tf_lite_q + 'tf_lite_' + model_name + '_quant.tflite', 'wb').write(tflite_model)
