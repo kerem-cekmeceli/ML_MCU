@@ -8,7 +8,7 @@ print("Base directory : ", BASE_DIR)
 print("Data directory : ", RAW_DATA_DIR)
 print("New data directory : ", DATA_DIR)
 
-SIZE_LIMIT = 70 # Number of speakers to extract
+SIZE_LIMIT = 25 # Number of speakers to extract
 
 
 def extract_dataset():

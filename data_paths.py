@@ -72,7 +72,7 @@ def get_file_paths_ordered(num_speaker, test_ratio, balanced_dataset, plot_data)
         y.extend([i]*len(paths_i))
 
     paths_train, paths_test, y_train_l, y_test_l = train_test_split(paths_chained, y, test_size=test_ratio)
-    print("Training number of files per speaker : ", len(paths_train)
+    print("Training number of files per speaker : ", len(paths_train))
 
     if plot_data:
         fig = plt.figure(figsize=(10,9))
