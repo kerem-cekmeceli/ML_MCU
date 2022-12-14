@@ -40,6 +40,7 @@ def model_0(input_shape, nb_classes):
 
     return model
 
+
 def model_1(input_shape, nb_classes):
     model = tf.keras.models.Sequential()
 

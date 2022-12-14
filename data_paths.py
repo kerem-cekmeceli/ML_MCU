@@ -49,6 +49,8 @@ def get_file_paths_ordered(num_speaker, test_ratio, balanced_dataset, plot_data)
     files_for_speakers_sorted = files_for_speakers_sorted[:num_speaker]
     nb_files_per_speaker_sorted = nb_files_per_speaker_sorted[:num_speaker]
 
+    print("Original number of files per speaker : ", nb_files_per_speaker_sorted)
+
     if balanced_dataset:
         # Max number of files per speaker is limited to the median of the considered batch
         max_files_per_speaker = int(median(nb_files_per_speaker_sorted)) 
@@ -70,6 +72,7 @@ def get_file_paths_ordered(num_speaker, test_ratio, balanced_dataset, plot_data)
         y.extend([i]*len(paths_i))
 
     paths_train, paths_test, y_train_l, y_test_l = train_test_split(paths_chained, y, test_size=test_ratio)
+    print("Training number of files per speaker : ", len(paths_train)
 
     if plot_data:
         fig = plt.figure(figsize=(10,9))
@@ -85,4 +88,3 @@ def get_file_paths_ordered(num_speaker, test_ratio, balanced_dataset, plot_data)
 
 
     return paths_train, paths_test, y_train_l, y_test_l, paths_chained
-
