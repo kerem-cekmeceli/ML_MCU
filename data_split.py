@@ -1,15 +1,14 @@
 import os
 import shutil
 
-BASE_DIR = os.getcwd() 
-RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data') # Directory of all data files
-DATA_DIR = os.path.join(BASE_DIR, 'data') # Directory of extracted data files
+BASE_DIR = "C:/Users/kerem/Documents/Coding/Python/ML_MCU" # os.getcwd()
+RAW_DATA_DIR = "C:/Users/kerem/Documents/Coding/Python/ML_MCU/VoxCelebDataset/train_wav/" # Directory of all data files
+DATA_DIR = "C:/Users/kerem/Documents/Coding/Python/ML_MCU/VoxCelebDataset/train_reduced" # Directory of extracted data files
 print("Base directory : ", BASE_DIR)
 print("Data directory : ", RAW_DATA_DIR)
 print("New data directory : ", DATA_DIR)
 
-SIZE_LIMIT = 20 # Number of speakers to extract
-TEST_SIZE = 10 # Number of test files per speaker
+SIZE_LIMIT = 70 # Number of speakers to extract
 
 
 def extract_dataset():
@@ -57,3 +56,5 @@ def make_train_test_list_file():
                 train_file.write(id + ' ' + os.path.join(id, wav) + '\n')
             for wav in wav_list[-test_size:]:
                 test_file.write(id + ' ' + os.path.join(id, wav) + '\n')
+
+extract_dataset()
