@@ -67,8 +67,7 @@ def model_1(input_shape, nb_classes):
     # Normalize data
     model.add(layers.Normalization())
 
-    #model.add(layers.InputLayer(input_shape=(train_set.shape[1],train_set.shape[2],train_set.shape[3]), batch_size=(batchSize)))
-    model.add(layers.Conv2D(filters=3, kernel_size=(3,3), padding="same", input_shape=input_shape))
+    model.add(layers.Conv2D(filters=8, kernel_size=(3,3), padding="same", input_shape=input_shape))
     model.add(layers.BatchNormalization())
     model.add(layers.Activation('relu'))
 
@@ -84,7 +83,6 @@ def model_1(input_shape, nb_classes):
 
     model.add(layers.MaxPool2D((2,2)))
 
-    #model.add(layers.Conv2D(filters=48, kernel_size=(3,3), strides=(2,2), padding='same'))
     model.add(layers.Conv2D(filters=128, kernel_size=(3,3), strides=(2,2), padding='same'))
     model.add(layers.BatchNormalization())
     model.add(layers.Activation('relu'))
@@ -93,7 +91,7 @@ def model_1(input_shape, nb_classes):
 
     model.add(layers.Flatten())
     
-    model.add(layers.Dense(16, kernel_regularizer=(regularizers.l1(0))))
+    model.add(layers.Dense(32, kernel_regularizer=(regularizers.l1(0))))
     model.add(layers.Activation('relu'))
     model.add(layers.Dropout(0.1))
 

@@ -6,32 +6,19 @@ from statistics import median
 import matplotlib.pyplot as plt
 
 
-def choose_tot_slice_len(paths, visualize):
-    duration = []
+def choose_tot_slice_len(paths):
+    durations = []
     nb_samps = len(paths)
     print("Visualization of the samples ...")
     for i in tqdm(range(nb_samps)):
         fs_i, sound_data_i = wavfile.read(paths[i])
         dur_i = sound_data_i.size  # Get nb elems of thh numpy array
         dur_i /= fs_i 
-        duration.append(dur_i)
+        durations.append(dur_i)
     
-    slice_len = round(median(duration) * 1.6)
-
-    if visualize:
-        fig = plt.figure(figsize=(10,9))
-        plt.title("Sample Lengths")
-        plt.xlabel("Duration [sec]")
-        plt.ylabel("Samples")
-        plt.barh(np.arange(0, nb_samps, 1), duration, height=0.9, label='samples')
-        plt.grid()
-        plt.axvline(x=slice_len, ymin=0, ymax=nb_samps, color='r', label='slice_length')
-        plt.xlim((0, 35))
-        plt.xticks(np.append(plt.xticks()[0], slice_len))
-        plt.legend()
-        plt.show()
-
-    return slice_len
+    slice_len = round(median(durations) * 1.6)
+        
+    return slice_len, durations
 
 
 def get_data_tensors(paths_train, paths_test, y_train_l, y_test_l, 

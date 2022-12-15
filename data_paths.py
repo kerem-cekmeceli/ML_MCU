@@ -15,7 +15,12 @@ def search_all_files(dirpath):
     return file_list
 
 
-def get_file_paths_ordered(num_speaker, test_ratio, balanced_dataset, plot_data):
+def get_file_paths_ordered(num_speaker, test_ratio, balanced_dataset, path_plot_sv=None):
+    
+    if path_plot_sv is not None:
+        plot_data = True
+    else:
+        plot_data = False
     
     path_proj_root =  Path('..')
     path_dataset = path_proj_root / 'VoxCelebDataset' 
@@ -26,8 +31,11 @@ def get_file_paths_ordered(num_speaker, test_ratio, balanced_dataset, plot_data)
     #     print("New directory is created as:", path_train_set_reduced)
     #     path_train_set_reduced.mkdir()
 
-    nb_speakers = len([x for x in path_train_set_orig.iterdir() if x.is_dir()])
-    print("Total number of speakers in the original dataset: " + str(nb_speakers))
+    nb_speakers_tot = len([x for x in path_train_set_orig.iterdir() if x.is_dir()])
+    print("Total number of speakers in the original dataset: " + str(nb_speakers_tot))
+    print(f'Number of speakers that will be used for training:' + \
+          f'{num_speaker} => {num_speaker/nb_speakers_tot*100.}%')
+
 
     # Get the files for all speakers in the dataset
     files_for_speakers = []
@@ -49,7 +57,8 @@ def get_file_paths_ordered(num_speaker, test_ratio, balanced_dataset, plot_data)
     files_for_speakers_sorted = files_for_speakers_sorted[:num_speaker]
     nb_files_per_speaker_sorted = nb_files_per_speaker_sorted[:num_speaker]
 
-    print("Original number of files per speaker : ", nb_files_per_speaker_sorted)
+    nb_files_tot = sum(nb_files_per_speaker_sorted)
+    print("Original number of files: ", str(nb_files_tot))
 
     if balanced_dataset:
         # Max number of files per speaker is limited to the median of the considered batch
@@ -72,18 +81,22 @@ def get_file_paths_ordered(num_speaker, test_ratio, balanced_dataset, plot_data)
         y.extend([i]*len(paths_i))
 
     paths_train, paths_test, y_train_l, y_test_l = train_test_split(paths_chained, y, test_size=test_ratio)
-    print("Training number of files per speaker : ", len(paths_train))
+    
+    nb_files_trained = len(paths_train)
+    print(f"Training number of files : {nb_files_trained} => {nb_files_trained/nb_files_tot*100.}%")
 
     if plot_data:
-        fig = plt.figure(figsize=(10,9))
+        plt.figure(figsize=(10,9))
         plt.bar(np.arange(0, num_speaker, 1), nb_files_per_speaker_sorted, label='OriginalDataset', width=1, edgecolor='k')
         if balanced_dataset:
-            plt.bar(np.arange(0, num_speaker, 1), nb_files_per_speaker_sorted_balanced, label='BalancedDataset', width=1, edgecolor='k')
+            plt.bar(np.arange(0, num_speaker, 1), nb_files_per_speaker_sorted_balanced, 
+                    label='BalancedDataset', width=1, edgecolor='k')
         
         plt.legend()
         plt.grid()
         plt.xlabel('Speakers')
         plt.ylabel('Number of Files')
+        plt.savefig(path_plot_sv + 'speaker_dat_overview.png')
         plt.show()
 
 

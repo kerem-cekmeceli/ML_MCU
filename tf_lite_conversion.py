@@ -84,25 +84,14 @@ def convert_to_tf_lite(keras_model, path_keras_model, path_tf_lite_nq_model=None
         comp = h5_in_kb / tflite_q_in_kb
         print("\nReduction in model size from Keras to TFLiteQuantized by a factor of %f" % (comp))
         comp_rat.append(comp)
-        
-    # Plots for comparison
-    plt.figure()
-    plt.bar(legends, sizes_on_disk)
-    plt.ylabel("KB")
-    plt.title("Sizes of the models")
-    plt.grid()
-    
-    plt.figure()
-    plt.bar(legends, comp_rat)
-    plt.title("Compression Ratios")
-    plt.grid()
+
     
     if save_quantized and save_non_quantized:
-        return tflite_model_nq, tflite_model_q
+        return tflite_model_nq, tflite_model_q, sizes_on_disk, comp_rat, legends
     elif save_non_quantized:
-        return tflite_model_nq
+        return tflite_model_nq, sizes_on_disk, comp_rat, legends
     elif save_quantized:
-        return tflite_model_q
+        return tflite_model_q, sizes_on_disk, comp_rat, legends
     else: raise Exception
         
 
