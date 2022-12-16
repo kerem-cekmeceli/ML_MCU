@@ -67,7 +67,7 @@ def model_1(input_shape, nb_classes):
     # Normalize data
     model.add(layers.Normalization())
 
-    model.add(layers.Conv2D(filters=8, kernel_size=(3,3), padding="same", input_shape=input_shape))
+    model.add(layers.Conv2D(filters=16, kernel_size=(3,3), padding="same", input_shape=input_shape))
     model.add(layers.BatchNormalization())
     model.add(layers.Activation('relu'))
 
