@@ -19,6 +19,7 @@ Usually advised not to use after the convolution layers, they are mostly used af
 
 import tensorflow as tf
 from tensorflow.keras import layers, regularizers
+from qkeras import *
 
 def model_0(input_shape, nb_classes):
     model = tf.keras.models.Sequential()
@@ -99,6 +100,66 @@ def model_1(input_shape, nb_classes):
     model.add(layers.Activation('softmax'))  # Softmax to get probas of each class
 
     return model
+
+
+def get_qmodel(input_shape, nb_classes, biased=False):
+
+    model = tf.keras.models.Sequential()
+    #Normalize data
+    model.add(layers.Normalization())
+
+    model.add(QConv2D(filters=16, kernel_size=(3,3), padding="same", input_shape=input_shape,
+                      kernel_quantizer="quantized_bits(8, 7, alpha=1)", 
+                      use_bias=biased,
+                      name="conv2d_1"))
+    model.add(layers.BatchNormalization())
+    model.add(QActivation("quantized_relu(2)", name="act_1"))
+
+    model.add(QConv2D(filters=32, kernel_size=(3,3), strides=(2,2), padding='same',
+                      kernel_quantizer="binary(alpha=1)", 
+                      use_bias=biased,     
+                      name="conv2d_2"))    
+    model.add(layers.BatchNormalization())
+    model.add(QActivation("quantized_relu(2)", name="act_2"))
+
+    model.add(layers.MaxPool2D((2,2)))
+
+    model.add(QConv2D(filters=64, kernel_size=(3,3), strides=(2,2), padding='same',
+                      kernel_quantizer="quantized_bits(8, 7, alpha=1)", 
+                      use_bias=biased, 
+                      name="conv2d_3"))
+    model.add(layers.BatchNormalization())
+    model.add(QActivation("quantized_relu(2)", name="act_3"))
+
+    model.add(layers.MaxPool2D((2,2)))
+
+    model.add(QConv2D(filters=128, kernel_size=(3,3), strides=(2,2), padding='same',
+                      kernel_quantizer="quantized_bits(8, 7, alpha=1)", 
+                      use_bias=biased, 
+                      name="conv2d_4"))
+    model.add(layers.BatchNormalization())
+    model.add(QActivation("quantized_relu(2)", name="act_4"))
+
+    model.add(layers.GlobalAveragePooling2D())
+
+    model.add(layers.Flatten())
+
+    model.add(QDense(32, kernel_regularizer=(regularizers.l1(0)),
+                     kernel_quantizer="binary(alpha=1)",
+                     bias_quantizer="binary(alpha=1)",
+                     name="dense_1"))
+    model.add(QActivation("quantized_relu(2)", name="act_5"))
+
+    model.add(QDense(nb_classes,
+                     kernel_quantizer="binary(alpha=1)",
+                     bias_quantizer="binary(alpha=1)",
+                     name="dense_2"))  # Nb classes to recognize
+    model.add(layers.Activation("softmax", name="softmax"))  # Softmax to get probas of each class
+    
+
+    return model
+    
+    
 
 def get_model(input_shape, nb_classes, model_idx):
     if model_idx == 0:
