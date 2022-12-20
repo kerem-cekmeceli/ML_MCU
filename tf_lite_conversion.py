@@ -2,9 +2,21 @@ import tensorflow as tf
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+import keras
+import qkeras
 
-def convert_to_tf_lite(keras_model, path_keras_model, path_tf_lite_nq_model=None, 
-                       train_set=None, path_tf_lite_q_model=None):
+def convert_to_tf_lite(keras_model=None, path_keras_model=None, path_tf_lite_nq_model=None, 
+                       train_set=None, path_tf_lite_q_model=None, is_qkeras=False):
+    
+    assert (keras_model is not None) or (path_keras_model is not None)
+    
+    if path_keras_model is not None:
+        if not is_qkeras:
+            keras_model =  keras.models.load_model(path_keras_model)
+        else:
+            keras_model = qkeras.utils.load_qmodel(path_keras_model)
+    else:
+        keras_model = keras_model
     
     save_quantized = path_tf_lite_q_model is not None
     save_non_quantized = path_tf_lite_nq_model is not None
@@ -14,17 +26,17 @@ def convert_to_tf_lite(keras_model, path_keras_model, path_tf_lite_nq_model=None
    
     if save_quantized:
         assert train_set is not None
-        assert path_tf_lite_nq_model.endswith(".tflite") 
+        assert path_tf_lite_q_model.endswith(".tflite") 
         
     if save_non_quantized:
-        assert path_tf_lite_q_model.endswith(".tflite") 
+        assert path_tf_lite_nq_model.endswith(".tflite") 
         
 
     # Convert the model to TFLite without quantization
     converter = tf.lite.TFLiteConverter.from_keras_model(keras_model)
-    tflite_model_nq = converter.convert()
 
     if save_non_quantized:
+        tflite_model_nq = converter.convert()
         # Save the non-quantized TFLite model to disk
         open(path_tf_lite_nq_model, "wb").write(tflite_model_nq)
     

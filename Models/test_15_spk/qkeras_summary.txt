@@ -1,0 +1,59 @@
+Model: "sequential_1"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ normalization_1 (Normalizat  (5900, 171, 13, 1)       3         
+ ion)                                                            
+                                                                 
+ conv2d_1 (QConv2D)          (5900, 171, 13, 16)       144       
+                                                                 
+ batch_normalization_4 (Batc  (5900, 171, 13, 16)      64        
+ hNormalization)                                                 
+                                                                 
+ act_1 (QActivation)         (5900, 171, 13, 16)       0         
+                                                                 
+ conv2d_2 (QConv2D)          (5900, 86, 7, 32)         4608      
+                                                                 
+ batch_normalization_5 (Batc  (5900, 86, 7, 32)        128       
+ hNormalization)                                                 
+                                                                 
+ act_2 (QActivation)         (5900, 86, 7, 32)         0         
+                                                                 
+ max_pooling2d_2 (MaxPooling  (5900, 43, 3, 32)        0         
+ 2D)                                                             
+                                                                 
+ conv2d_3 (QConv2D)          (5900, 22, 2, 64)         18432     
+                                                                 
+ batch_normalization_6 (Batc  (5900, 22, 2, 64)        256       
+ hNormalization)                                                 
+                                                                 
+ act_3 (QActivation)         (5900, 22, 2, 64)         0         
+                                                                 
+ max_pooling2d_3 (MaxPooling  (5900, 11, 1, 64)        0         
+ 2D)                                                             
+                                                                 
+ conv2d_4 (QConv2D)          (5900, 6, 1, 128)         73728     
+                                                                 
+ batch_normalization_7 (Batc  (5900, 6, 1, 128)        512       
+ hNormalization)                                                 
+                                                                 
+ act_4 (QActivation)         (5900, 6, 1, 128)         0         
+                                                                 
+ global_average_pooling2d_1   (5900, 128)              0         
+ (GlobalAveragePooling2D)                                        
+                                                                 
+ flatten_1 (Flatten)         (5900, 128)               0         
+                                                                 
+ dense_1 (QDense)            (5900, 32)                4128      
+                                                                 
+ act_5 (QActivation)         (5900, 32)                0         
+                                                                 
+ dense_2 (QDense)            (5900, 15)                495       
+                                                                 
+ softmax (Activation)        (5900, 15)                0         
+                                                                 
+=================================================================
+Total params: 102,498
+Trainable params: 102,015
+Non-trainable params: 483
+_________________________________________________________________
