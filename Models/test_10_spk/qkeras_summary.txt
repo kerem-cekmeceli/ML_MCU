@@ -1,0 +1,102 @@
+Model: "sequential_1"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ normalization_1 (Normalizat  (4388, 171, 13, 1)       3         
+ ion)                                                            
+                                                                 
+ conv2d_1 (QConv2D)          (4388, 171, 13, 16)       144       
+                                                                 
+ batch_normalization_4 (Batc  (4388, 171, 13, 16)      64        
+ hNormalization)                                                 
+                                                                 
+ act_1 (QActivation)         (4388, 171, 13, 16)       0         
+                                                                 
+ conv2d_2 (QConv2D)          (4388, 86, 7, 32)         4608      
+                                                                 
+ batch_normalization_5 (Batc  (4388, 86, 7, 32)        128       
+ hNormalization)                                                 
+                                                                 
+ act_2 (QActivation)         (4388, 86, 7, 32)         0         
+                                                                 
+ max_pooling2d_2 (MaxPooling  (4388, 43, 3, 32)        0         
+ 2D)                                                             
+                                                                 
+ conv2d_3 (QConv2D)          (4388, 22, 2, 64)         18432     
+                                                                 
+ batch_normalization_6 (Batc  (4388, 22, 2, 64)        256       
+ hNormalization)                                                 
+                                                                 
+ act_3 (QActivation)         (4388, 22, 2, 64)         0         
+                                                                 
+ max_pooling2d_3 (MaxPooling  (4388, 11, 1, 64)        0         
+ 2D)                                                             
+                                                                 
+ conv2d_4 (QConv2D)          (4388, 6, 1, 128)         73728     
+                                                                 
+ batch_normalization_7 (Batc  (4388, 6, 1, 128)        512       
+ hNormalization)                                                 
+                                                                 
+ act_4 (QActivation)         (4388, 6, 1, 128)         0         
+                                                                 
+ global_average_pooling2d_1   (4388, 128)              0         
+ (GlobalAveragePooling2D)                                        
+                                                                 
+ flatten_1 (Flatten)         (4388, 128)               0         
+                                                                 
+ dense_1 (QDense)            (4388, 32)                4128      
+                                                                 
+ act_5 (QActivation)         (4388, 32)                0         
+                                                                 
+ dense_2 (QDense)            (4388, 10)                330       
+                                                                 
+ softmax (Activation)        (4388, 10)                0         
+                                                                 
+=================================================================
+Total params: 102,333
+Trainable params: 101,850
+Non-trainable params: 483
+_________________________________________________________________
+
+Number of operations in model:
+    conv2d_1                      : 320112 (smult_8_8)
+    conv2d_2                      : 2774016 (smux_1_2)
+    conv2d_3                      : 811008 (smult_8_2)
+    conv2d_4                      : 442368 (smult_8_2)
+    dense_1                       : 4096  (smux_1_2)
+    dense_2                       : 320   (smux_1_2)
+
+Number of operation types in model:
+    smult_8_2                     : 1253376
+    smult_8_8                     : 320112
+    smux_1_2                      : 2778432
+
+Weight profiling:
+    conv2d_1_weights               : 144   (8-bit unit)
+    conv2d_1_bias                  : 0     (32-bit unit)
+    conv2d_2_weights               : 4608  (1-bit unit)
+    conv2d_2_bias                  : 0     (32-bit unit)
+    conv2d_3_weights               : 18432 (8-bit unit)
+    conv2d_3_bias                  : 0     (32-bit unit)
+    conv2d_4_weights               : 73728 (8-bit unit)
+    conv2d_4_bias                  : 0     (32-bit unit)
+    dense_1_weights                : 4096  (1-bit unit)
+    dense_1_bias                   : 32    (1-bit unit)
+    dense_2_weights                : 320   (1-bit unit)
+    dense_2_bias                   : 10    (1-bit unit)
+
+Weight sparsity:
+... quantizing model
+  normalization_1 has not been quantized
+  batch_normalization_4 has not been quantized
+  batch_normalization_5 has not been quantized
+  batch_normalization_6 has not been quantized
+  batch_normalization_7 has not been quantized
+    conv2d_1                       : 0.6111
+    conv2d_2                       : 0.0000
+    conv2d_3                       : 0.1136
+    conv2d_4                       : 0.1332
+    dense_1                        : 0.0000
+    dense_2                        : 0.0000
+    ----------------------------------------
+    Total Sparsity                 : 0.1184
